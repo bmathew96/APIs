@@ -6,6 +6,8 @@ import (
 	"io"
 	"time"
 
+	"strings"
+
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -40,7 +42,7 @@ func getEnvConfig() (config EnvConfig, err error) {
 }
 
 func getKeyHash() (hash string, timeStamp string) {
-	timeStamp = time.Now().String()
+	timeStamp = strings.Replace(time.Now().String(), " ", "", -1)
 
 	//creates md5 hash
 	h := md5.New()
