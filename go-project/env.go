@@ -18,19 +18,19 @@ import (
 	export MYAPI_DBHOSTNAME=
 	export MYAPI_DBPORT=3306
 	export MYAPI_DEBUG=true
-	export MYAPI_APIKEYPUBLIC=""
-	export MYAPI_APIKEYPRIVATE=""
+	export MYAPI_MARVELPUBLICKEY=""
+	export MYAPI_MARVELPRIVATEKEY=""
 */
 
 // EnvConfig contains the Enviornment Variables we are using
 type EnvConfig struct {
-	DBUsername string
-	DBPassword string
-	DBHostname string
+	DBUsername       string
+	DBPassword       string
+	DBHostname       string
 	MarvelPublicKey  string
 	MarvelPrivateKey string
-	DBPort     int
-	Debug      bool
+	DBPort           int
+	Debug            bool
 }
 
 func getEnvConfig() (config EnvConfig, err error) {
