@@ -24,20 +24,18 @@ import (
 
 // EnvConfig contains the Enviornment Variables we are using
 type EnvConfig struct {
-	DBUsername    string
-	DBPassword    string
-	DBHostname    string
-	APIKeyPublic  string `envconfig:"APIKeyPublic"`
-	APIKeyPrivate string `envconfig:"APIKeyPrivate"`
-	DBPort        int
-	Debug         bool
+	DBUsername string
+	DBPassword string
+	DBHostname string
+	MarvelPublicKey  string
+	MarvelPrivateKey string
+	DBPort     int
+	Debug      bool
 }
 
 func getEnvConfig() (config EnvConfig, err error) {
-
 	// parse out environment variables
 	err = envconfig.Process("myapi", &config)
-
 	return
 }
 
@@ -47,8 +45,8 @@ func getKeyHash() (hash string, timeStamp string) {
 	//creates md5 hash
 	h := md5.New()
 	io.WriteString(h, timeStamp)
-	io.WriteString(h, config.APIKeyPrivate)
-	io.WriteString(h, config.APIKeyPublic)
+	io.WriteString(h, config.MarvelPrivateKey)
+	io.WriteString(h, config.MarvelPublicKey)
 	hash = fmt.Sprintf("%x", h.Sum(nil))
 
 	return
