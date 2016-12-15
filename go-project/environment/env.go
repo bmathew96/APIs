@@ -1,4 +1,4 @@
-package main
+package environment
 
 import (
 	"crypto/md5"
@@ -33,20 +33,20 @@ type EnvConfig struct {
 	Debug            bool
 }
 
-func getEnvConfig() (config EnvConfig, err error) {
+func GetEnvConfig() (config EnvConfig, err error) {
 	// parse out environment variables
 	err = envconfig.Process("myapi", &config)
 	return
 }
 
-func getKeyHash() (hash string, timeStamp string) {
+func (ev *EnvConfig) GetKeyHash() (hash string, timeStamp string) {
 	timeStamp = strings.Replace(time.Now().String(), " ", "", -1)
 
 	//creates md5 hash
 	h := md5.New()
 	io.WriteString(h, timeStamp)
-	io.WriteString(h, config.MarvelPrivateKey)
-	io.WriteString(h, config.MarvelPublicKey)
+	io.WriteString(h, ev.MarvelPrivateKey)
+	io.WriteString(h, ev.MarvelPublicKey)
 	hash = fmt.Sprintf("%x", h.Sum(nil))
 
 	return
