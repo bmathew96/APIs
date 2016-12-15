@@ -15,7 +15,7 @@ type Response struct {
 
 // CharacterTable will be used as a model to save the respone result
 type CharacterTable struct {
-	CharacterID int    `gorm:"column:default:nil;CharacterID;primary_key" json:"characterId" `
+	CharacterID int    `gorm:"column:CharacterID;primary_key;default:nil" json:"characterId" `
 	Name        string `gorm:"column:Name;" json:"name" `
 	Description string `gorm:"column:Description;" json:"description" `
 	Thumbnail   string `gorm:"column:Thumbnail;" json:"thumbnail" `
@@ -49,7 +49,7 @@ func (cs *Characters) Populate(responseCharacters []marvelCharacter) []Character
 
 // ComicTable will be used as a model to save the respone result
 type ComicTable struct {
-	ComicID     int    `gorm:"default:nil;column:ComicID;primary_key" json:"comicId" `
+	ComicID     int    `gorm:"column:ComicID;primary_key;default:nil" json:"comicId" `
 	Title       string `gorm:"column:Title;" json:"title" `
 	Description string `gorm:"column:Description;" json:"description" `
 	Thumbnail   string `gorm:"column:Thumbnail;" json:"thumbnail" `
