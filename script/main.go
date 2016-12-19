@@ -178,7 +178,7 @@ func resetComicsTable() (status string, err error) {
 	for key, comic := range collection {
 		log.Printf("adding to queue [%d of %d]", key, comicsCount)
 		// add them to queue
-		db.Create(&comic)
+		tx.Create(&comic)
 	}
 
 	// save to table
