@@ -28,12 +28,14 @@ func init() {
 	}
 
 	log.Println("Connecting to database with ", config.DBUsername)
-	connectionString := fmt.Sprintf("%s:%s@(%s:%d)/Common?parseTime=True&loc=%s", config.DBUsername, config.DBPassword, config.DBHostname, config.DBPort, "America%2FChicago")
+	connectionString := fmt.Sprintf("%s:%s@(%s:%d)/?parseTime=True&loc=%s", config.DBUsername, config.DBPassword, config.DBHostname, config.DBPort, "America%2FChicago")
 	db, gerr = gorm.Open("mysql", connectionString)
 	if gerr != nil {
 		log.Fatal(gerr)
 		os.Exit(0)
 	}
+
+	db.LogMode(true)
 }
 
 func main() {
@@ -47,6 +49,6 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Println("Serving on port 8083")
+	log.Println("Serving on port 8083 \n")
 	log.Fatal(s.ListenAndServe())
 }

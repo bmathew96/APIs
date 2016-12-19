@@ -10,6 +10,7 @@ import (
 	"net/http"
 	env "personal-project/APIs/go-project/environment"
 	model "personal-project/APIs/go-project/model"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -27,7 +28,7 @@ func init() {
 	}
 	fmt.Println(config)
 	log.Println("Connecting to database")
-	connectionString := fmt.Sprintf("%s:%s@(%s:%d)/Common?parseTime=True&loc=%s", config.DBUsername, config.DBPassword, config.DBHostname, config.DBPort, "America%2FChicago")
+	connectionString := fmt.Sprintf("%s:%s@(%s:%d)/?parseTime=True&loc=%s", config.DBUsername, config.DBPassword, config.DBHostname, config.DBPort, "America%2FChicago")
 	db, err = gorm.Open("mysql", connectionString)
 	if err != nil {
 		log.Fatal("Failed: ", err)
@@ -36,10 +37,13 @@ func init() {
 
 func main() {
 	defer db.Close()
-	status, err := restCharactersTable()
-	log.Println("Status: ", status, "Error: ", err)
 
-	status, err = restComicsTable()
+	status, err := resetCharactersTable()
+	log.Println("Status: ", status, "Error: ", err)
+	log.Println("At this point we may have sent too much requests ... lets pause for a few minutes")
+	time.Sleep(time.Minute * 5)
+	log.Println("Resuming ... ")
+	status, err = resetComicsTable()
 	log.Println("Status: ", status, "Error: ", err)
 
 }
@@ -55,8 +59,17 @@ func getMarvelCharacters() (characterCollection []model.CharacterTable, err erro
 	characterCollection = collectionBuilder.Populate(response.Data.Results)
 
 	respCount := response.Data.Count
+	canSleep := true
 	for count := response.Data.Count; count <= response.Data.Total; count += respCount {
 		log.Printf("\t\t ON [%d of %d] \n", count, response.Data.Total)
+
+		if count > (response.Data.Total/2) && canSleep {
+			log.Println("\t\t We have send too much request ... lets sleep for a miute")
+			time.Sleep(time.Minute)
+			canSleep = false
+			log.Println("\t\t resuming")
+
+		}
 
 		respCount = response.Data.Count
 		response, err = validateAndUnMarshalCharacters(count)
@@ -70,16 +83,26 @@ func getMarvelCharacters() (characterCollection []model.CharacterTable, err erro
 	return
 }
 
-func restCharactersTable() (status string, err error) {
+func resetCharactersTable() (status string, err error) {
 	status = "failed to reset characters"
 	db.Exec("TRUNCATE TABLE " + model.CharacterTable{}.TableName() + ";")
 	collection, err := getMarvelCharacters()
 	if err != nil {
 		return
 	}
-	for _, character := range collection {
-		db.Create(&character)
+	// begin a transaction
+	tx := db.Begin()
+	log.Println("transaction started")
+
+	charactersCount := len(collection)
+	for key, character := range collection {
+		log.Printf("adding to queue [%d of %d]", key, charactersCount)
+		// add them to queue
+		tx.Create(&character)
 	}
+	// save to table
+	tx.Commit()
+	log.Println(charactersCount, " rows added")
 	status = "characters reset successfully "
 
 	return
@@ -114,8 +137,18 @@ func getMarvelComics() (comicCollection []model.ComicTable, err error) {
 	comicCollection = collectionBuilder.Populate(response.Data.Results)
 
 	respCount := response.Data.Count
+	canSleep := true
+
 	for count := response.Data.Count; count <= response.Data.Total; count += respCount {
 		log.Printf("\t\t ON [%d of %d] \n", count, response.Data.Total)
+
+		if count > (response.Data.Total/2) && canSleep {
+			log.Println("\t\t We have send too much request ... lets sleep for a miute")
+			time.Sleep(time.Minute)
+			canSleep = false
+			log.Println("\t\t resuming")
+
+		}
 
 		respCount = response.Data.Count
 		response, err = validateAndUnMarshalComics(count)
@@ -129,16 +162,28 @@ func getMarvelComics() (comicCollection []model.ComicTable, err error) {
 	return
 }
 
-func restComicsTable() (status string, err error) {
+func resetComicsTable() (status string, err error) {
 	status = "failed to reset comic"
 	db.Exec("TRUNCATE TABLE " + model.ComicTable{}.TableName() + ";")
 	collection, err := getMarvelComics()
 	if err != nil {
 		return
 	}
-	for _, comic := range collection {
+
+	// begin a transaction
+	tx := db.Begin()
+	log.Println("transaction started")
+
+	comicsCount := len(collection)
+	for key, comic := range collection {
+		log.Printf("adding to queue [%d of %d]", key, comicsCount)
+		// add them to queue
 		db.Create(&comic)
 	}
+
+	// save to table
+	tx.Commit()
+	log.Println(comicsCount, " rows added")
 	status = "comics reset successfully "
 
 	return

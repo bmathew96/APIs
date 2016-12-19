@@ -4,9 +4,9 @@ package model
 		RESPONSE MODEL
 ====================================== */
 type Response struct {
-	Code    int
-	Status  string
-	Results interface{}
+	Code    int         `json:"code,omitempty"`
+	Status  string      `json:"status,omitempty"`
+	Results interface{} `json:"results,omitempty"`
 }
 
 /* ===================================
@@ -15,11 +15,11 @@ type Response struct {
 
 // CharacterTable will be used as a model to save the respone result
 type CharacterTable struct {
-	CharacterID int    `gorm:"column:CharacterID;primary_key;default:nil" json:"characterId" `
+	CharacterID int    `gorm:"column:CharacterID;primary_key;default:nil" json:"characterId,omitempty" `
 	Name        string `gorm:"column:Name;" json:"name" `
-	Description string `gorm:"column:Description;" json:"description" `
-	Thumbnail   string `gorm:"column:Thumbnail;" json:"thumbnail" `
-	GivenID     int    `gorm:"column:GivenID;" json:"id" `
+	Description string `gorm:"column:Description;" json:"description,omitempty" `
+	Thumbnail   string `gorm:"column:Thumbnail;" json:"thumbnail,omitempty" `
+	GivenID     int    `gorm:"column:GivenID;" json:"id,omitempty" `
 }
 
 func (t CharacterTable) TableName() string {
@@ -49,12 +49,12 @@ func (cs *Characters) Populate(responseCharacters []marvelCharacter) []Character
 
 // ComicTable will be used as a model to save the respone result
 type ComicTable struct {
-	ComicID     int    `gorm:"column:ComicID;primary_key;default:nil" json:"comicId" `
+	ComicID     int    `gorm:"column:ComicID;primary_key;default:nil" json:"comicId,omitempty" `
 	Title       string `gorm:"column:Title;" json:"title" `
-	Description string `gorm:"column:Description;" json:"description" `
-	Thumbnail   string `gorm:"column:Thumbnail;" json:"thumbnail" `
-	PageCount   int    `gorm:"column:PageCount;" json:"pageCount" `
-	GivenID     int    `gorm:"column:GivenID;" json:"id" `
+	Description string `gorm:"column:Description;" json:"description,omitempty" `
+	Thumbnail   string `gorm:"column:Thumbnail;" json:"thumbnail,omitempty" `
+	PageCount   int    `gorm:"column:PageCount;" json:"pageCount,omitempty" `
+	GivenID     int    `gorm:"column:GivenID;" json:"id,omitempty" `
 }
 
 func (t ComicTable) TableName() string {
@@ -84,7 +84,7 @@ func (cs *Comics) Populate(responseComics []marvelComic) []ComicTable {
 }
 
 /* ===================================
-			MARVEL RESPONSE STRUCT
+		MARVEL RESPONSE STRUCT
 ====================================== */
 
 // MarvelResponseCharacter is all the data we want to parse out from the response json

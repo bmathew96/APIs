@@ -1,25 +1,30 @@
 package main
 
 import (
-	"fmt"
 	"personal-project/APIs/go-project/model"
+	"strings"
 )
 
-func fetchAllCharacters(search string) (charactersCollection []model.CharacterTable) {
+func fetchAllCharacters(search string, limit int) (charactersCollection []model.CharacterTable, err error) {
+	search = strings.Replace(search, "\"", "", -1)
+
+	if limit < 1 {
+		limit = 100
+	}
 
 	if len(search) < 1 {
-		db.Find(&charactersCollection)
+		db.Limit(limit).Find(&charactersCollection)
 		return
 	}
 
-	db.Where("Name LIKE ?", "%"+search+"%").Find(&charactersCollection)
+	db.Where("Name LIKE ?", "%"+search+"%").Limit(limit).Find(&charactersCollection)
 	return
 
 }
 
 func fetchCharacter(ID int) (character model.CharacterTable) {
+
 	db.Where("CharacterID = ?", ID).First(&character)
-	fmt.Println(character)
 	return
 }
 
@@ -30,6 +35,7 @@ func deleteCharacter(ID int) {
 
 func addUpdateCharacter(request model.CharacterTable) (response model.CharacterTable) {
 	if request.CharacterID > 1 {
+
 		character := fetchCharacter(request.CharacterID)
 		db.First(&character)
 
@@ -54,6 +60,7 @@ func addUpdateCharacter(request model.CharacterTable) (response model.CharacterT
 	}
 
 	if db.NewRecord(request) {
+
 		db.Create(&request)
 		response = request
 	}
@@ -61,30 +68,37 @@ func addUpdateCharacter(request model.CharacterTable) (response model.CharacterT
 	return
 }
 
-func fetchAllComics(search string) (comicsCollection []model.ComicTable) {
+func fetchAllComics(search string, limit int) (comicsCollection []model.ComicTable) {
+	search = strings.Replace(search, "\"", "", -1)
+	if limit < 1 {
+		limit = 100
+	}
 
 	if len(search) < 1 {
-		db.Find(&comicsCollection)
+		db.Limit(limit).Find(&comicsCollection)
 		return
 	}
 
-	db.Where("Title LIKE ?", "%"+search+"%").Find(&comicsCollection)
+	db.Where("Title LIKE ?", "%"+search+"%").Limit(limit).Find(&comicsCollection)
 	return
 
 }
 
 func fetchComic(ID int) (comic model.ComicTable) {
+
 	db.Where("ComicID = ?", ID).First(&comic)
 	return
 }
 
 func deleteComic(ID int) {
+
 	comic := fetchComic(ID)
 	db.Delete(&comic)
 }
 
 func addUpdateComic(request model.ComicTable) (response model.ComicTable) {
 	if request.ComicID > 1 {
+
 		comic := fetchComic(request.ComicID)
 		db.First(&comic)
 
@@ -113,6 +127,7 @@ func addUpdateComic(request model.ComicTable) (response model.ComicTable) {
 	}
 
 	if db.NewRecord(request) {
+
 		db.Create(&request)
 		response = request
 	}
